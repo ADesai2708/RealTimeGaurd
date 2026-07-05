@@ -1,0 +1,26 @@
+{
+    "preprocessing_version": "1.0",
+    "feature_list": [
+        "step",
+        "type",
+        "amount",
+        "oldbalanceOrg",
+        "newbalanceOrig",
+        "oldbalanceDest",
+        "newbalanceDest",
+        "balanceChange",
+        "destinationBalanceChange",
+        "hour",
+        "day",
+        "isLargeTransaction",
+        "originBalanceZero",
+        "destinationBalanceZero"
+    ],
+    "encoder_classes": [
+        "CASH_IN",
+        "CASH_OUT",
+        "DEBIT",
+        "PAYMENT",
+        "TRANSFER"
+    ]
+}
