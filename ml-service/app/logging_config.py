@@ -16,7 +16,6 @@ Design decisions:
 
 from __future__ import annotations
 
-import io
 import logging
 import sys
 
@@ -35,19 +34,9 @@ def configure_logging(level: str = "INFO") -> None:
     """
     numeric_level = getattr(logging, level.upper(), logging.INFO)
 
-    # ------------------------------------------------------------------
-    # Force UTF-8 on Windows so Unicode chars in log messages don't
-    # raise UnicodeEncodeError on cp1252 terminals.
-    # ------------------------------------------------------------------
-    try:
-        utf8_stream = io.TextIOWrapper(
-            sys.stdout.buffer, encoding="utf-8", line_buffering=True
-        )
-    except AttributeError:
-        # .buffer is unavailable in some environments (pytest capture)
-        utf8_stream = sys.stdout
-
-    handler = logging.StreamHandler(utf8_stream)
+    # Use the active stream directly. Wrapping sys.stdout.buffer creates a
+    # second owner that can close pytest's capture stream during cleanup.
+    handler = logging.StreamHandler(sys.stdout)
     handler.setLevel(numeric_level)
     handler.setFormatter(
         logging.Formatter(

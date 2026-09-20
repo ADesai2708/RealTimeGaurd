@@ -4,7 +4,6 @@ utils.py
 Shared utilities for the RealTimeGuard ML pipeline.
 """
 
-import io
 import json
 import logging
 import sys
@@ -45,16 +44,9 @@ def setup_logger(name: str, level: int = logging.INFO) -> logging.Logger:
 
     logger.setLevel(level)
 
-    # Force UTF-8 so Unicode chars (─ →) work on Windows cp1252 terminals
-    try:
-        utf8_stream = io.TextIOWrapper(
-            sys.stdout.buffer, encoding="utf-8", line_buffering=True
-        )
-    except AttributeError:
-        # stdout may not have .buffer in some environments (e.g. pytest capture)
-        utf8_stream = sys.stdout
-
-    handler = logging.StreamHandler(utf8_stream)
+    # Use the active stream directly so pytest retains ownership of its
+    # temporary capture stream during test cleanup.
+    handler = logging.StreamHandler(sys.stdout)
     handler.setLevel(level)
 
     formatter = logging.Formatter(
