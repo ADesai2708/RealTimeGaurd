@@ -22,5 +22,6 @@
         "DEBIT",
         "PAYMENT",
         "TRANSFER"
-    ]
+    ],
+    "large_transaction_threshold": 559614.3579999998
 }

@@ -115,7 +115,8 @@ class ModelTrainer:
         Parameters
         ----------
         X_train : pd.DataFrame
-            Training feature matrix (used to extract feature list).
+            Training feature matrix (used to extract feature list and
+            compute the large-transaction threshold).
         """
         # 1. Save trained model
         model_path = self.model_dir / "fraud_model.pkl"
@@ -135,12 +136,27 @@ class ModelTrainer:
             else []
         )
 
+        # Persist the 95th-percentile amount threshold that was used by
+        # add_engineered_features during training.  The inference engine
+        # MUST load and reuse this value; computing it from a single-row
+        # inference DataFrame would produce a threshold equal to the
+        # row's own amount, making isLargeTransaction always 0.
+        large_transaction_threshold = float(
+            X_train["amount"].quantile(0.95)
+        )
+        logger.info(
+            "large_transaction_threshold persisted: %.4f",
+            large_transaction_threshold,
+        )
+
         preprocessing_config = {
             "preprocessing_version": "1.0",
             "feature_list": feature_list,
             "encoder_classes": encoder_classes,
+            "large_transaction_threshold": large_transaction_threshold,
         }
 
         config_path = self.model_dir / "preprocessing_config.json"
         save_json(preprocessing_config, config_path)
         logger.info("Preprocessing config saved → %s", config_path)
+
