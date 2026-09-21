@@ -128,7 +128,7 @@ python3 train_model.py
 
 ## Dataset
 
-[PaySim1 — Synthetic Financial Dataset For Fraud Detection](https://www.kaggle.com/datasets/ealaxi/paysim1) (Kaggle)
+[PaySim1 — Synthetic Financ ial Dataset For Fraud Detection](https://www.kaggle.com/datasets/ealaxi/paysim1) (Kaggle)
 
 ---
 

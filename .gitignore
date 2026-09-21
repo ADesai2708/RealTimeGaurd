@@ -126,4 +126,4 @@ desktop.ini
 # =============================================================
 *.tmp
 *.bak
-.eslintcache
+.eslintcache 
