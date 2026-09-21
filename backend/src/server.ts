@@ -1,8 +1,13 @@
 import express from "express";
-
+import { config } from "./config/env";
+import {
+  connectRedis,
+  disconnectRedis,
+} from "./config/redis";
+import { publishTransaction } from "./streams/transactionStream";
+import { createConsumerGroup } from "./streams/consumerGroup";
+import { startTransactionConsumer } from "./streams/transactionConsumer";
 const app = express();
-
-const PORT = 5000;
 
 app.get("/", (_req, res) => {
   res.json({
@@ -10,7 +15,62 @@ app.get("/", (_req, res) => {
     status: "running",
   });
 });
+async function startServer(): Promise<void> {
+  try {
+    await connectRedis();
 
-app.listen(PORT, () => {
-  console.log(`RealTimeGuard backend running on http://localhost:${PORT}`);
+    await createConsumerGroup();
+
+startTransactionConsumer().catch((error) => {
+  console.error("Transaction consumer stopped:", error);
 });
+
+    app.listen(config.port, () => {
+      console.log(
+        `RealTimeGuard backend running on http://localhost:${config.port}`,
+      );
+    });
+  } catch (error) {
+    console.error("Failed to start server:", error);
+    process.exit(1);
+  }
+}
+app.post("/test/transaction", async (_req, res) => {
+  try {
+    const messageId = await publishTransaction({
+      transaction_id: "test-txn-001",
+      step: 120,
+      type: "TRANSFER",
+      amount: 7500,
+      oldbalanceOrg: 15000,
+      newbalanceOrig: 7500,
+      oldbalanceDest: 1000,
+      newbalanceDest: 8500,
+    });
+
+    res.json({
+      message: "Transaction published",
+      stream: "transactions",
+      messageId,
+    });
+  } catch (error) {
+    console.error("Failed to publish transaction:", error);
+
+    res.status(500).json({
+      error: "Failed to publish transaction",
+    });
+  }
+});
+
+async function shutdown(): Promise<void> {
+  console.log("Shutting down server...");
+
+  await disconnectRedis();
+
+  process.exit(0);
+}
+
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
+
+startServer();
