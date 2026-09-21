@@ -8,6 +8,7 @@ import { publishTransaction } from "./streams/transactionStream";
 import { createConsumerGroup } from "./streams/consumerGroup";
 import { startTransactionConsumer } from "./streams/transactionConsumer";
 import { startTransactionGenerator } from "./generator/transactionGenerator";
+import { connectMongoDB } from "./config/mongodb";
 const app = express();
 
 app.get("/", (_req, res) => {
@@ -19,7 +20,7 @@ app.get("/", (_req, res) => {
 async function startServer(): Promise<void> {
   try {
     await connectRedis();
-
+await connectMongoDB();
     await createConsumerGroup();
 
 startTransactionConsumer().catch((error) => {

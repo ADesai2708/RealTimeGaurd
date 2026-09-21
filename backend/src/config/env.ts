@@ -10,6 +10,18 @@ export const config = {
   },
 
   mlService: {
-    url: process.env.ML_SERVICE_URL || "http://localhost:8000",
+    url:
+      process.env.ML_SERVICE_URL ||
+      "http://localhost:8001",
+  },
+
+  mongodb: {
+    uri:
+      process.env.MONGODB_URI ||
+      "mongodb://localhost:27017",
+
+    database:
+      process.env.MONGODB_DATABASE ||
+      "realtimeguard",
   },
 };
