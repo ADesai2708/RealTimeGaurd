@@ -8,4 +8,8 @@ export const config = {
   redis: {
     url: process.env.REDIS_URL || "redis://localhost:6379",
   },
+
+  mlService: {
+    url: process.env.ML_SERVICE_URL || "http://localhost:8000",
+  },
 };

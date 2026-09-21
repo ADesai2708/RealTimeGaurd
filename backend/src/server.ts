@@ -7,6 +7,7 @@ import {
 import { publishTransaction } from "./streams/transactionStream";
 import { createConsumerGroup } from "./streams/consumerGroup";
 import { startTransactionConsumer } from "./streams/transactionConsumer";
+import { startTransactionGenerator } from "./generator/transactionGenerator";
 const app = express();
 
 app.get("/", (_req, res) => {
@@ -23,6 +24,9 @@ async function startServer(): Promise<void> {
 
 startTransactionConsumer().catch((error) => {
   console.error("Transaction consumer stopped:", error);
+});
+startTransactionGenerator(1).catch((error) => {
+  console.error("Transaction generator stopped:", error);
 });
 
     app.listen(config.port, () => {
