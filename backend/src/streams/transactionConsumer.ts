@@ -4,7 +4,7 @@ import {
   MLTransaction,
 } from "../services/mlClient";
 import { recoverPendingMessages } from "./pendingRecovery";
-
+import { saveTransaction } from "../repositories/transactionRepository";
 const TRANSACTION_STREAM = "transactions";
 const CONSUMER_GROUP = "fraud-detectors";
 const CONSUMER_NAME = "worker-1";
@@ -53,15 +53,38 @@ async function processTransaction(
     `${prediction.latency_ms} ms`,
   );
   console.log(
-    "Model Version:",
-    prediction.model_version,
-  );
+  "Model Version:",
+  prediction.model_version,
+);
 
-  await redisClient.xAck(
-    TRANSACTION_STREAM,
-    CONSUMER_GROUP,
-    messageId,
-  );
+await saveTransaction({
+  transactionId: transaction.transaction_id,
+
+  step: transaction.step,
+  type: transaction.type,
+  amount: transaction.amount,
+
+  oldBalanceOrg: transaction.oldbalanceOrg,
+  newBalanceOrig: transaction.newbalanceOrig,
+
+  oldBalanceDest: transaction.oldbalanceDest,
+  newBalanceDest: transaction.newbalanceDest,
+
+  fraudProbability: prediction.fraud_probability,
+  prediction: prediction.prediction,
+  decision: prediction.decision,
+
+  mlLatencyMs: prediction.latency_ms,
+  modelVersion: prediction.model_version,
+
+  createdAt: new Date(),
+});
+
+await redisClient.xAck(
+  TRANSACTION_STREAM,
+  CONSUMER_GROUP,
+  messageId,
+);
 
   console.log(
     "Transaction acknowledged:",

@@ -9,8 +9,13 @@ import { createConsumerGroup } from "./streams/consumerGroup";
 import { startTransactionConsumer } from "./streams/transactionConsumer";
 import { startTransactionGenerator } from "./generator/transactionGenerator";
 import { connectMongoDB } from "./config/mongodb";
-const app = express();
+import { createServer } from "http";
+import { initializeSocket } from "./config/socket";
 
+const app = express();
+const httpServer = createServer(app);
+
+initializeSocket(httpServer);
 app.get("/", (_req, res) => {
   res.json({
     service: "RealTimeGuard Backend",
@@ -30,11 +35,11 @@ startTransactionGenerator(1).catch((error) => {
   console.error("Transaction generator stopped:", error);
 });
 
-    app.listen(config.port, () => {
-      console.log(
-        `RealTimeGuard backend running on http://localhost:${config.port}`,
-      );
-    });
+    httpServer.listen(config.port, () => {
+  console.log(
+    `RealTimeGuard backend running on http://localhost:${config.port}`,
+  );
+});
   } catch (error) {
     console.error("Failed to start server:", error);
     process.exit(1);
